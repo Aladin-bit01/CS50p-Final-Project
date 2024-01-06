@@ -8,10 +8,13 @@
 ## Real Little Professor:
 As you can see in the previous image, this calculator, AKA Little Professor, is one of the coolest educational games that appeared during the late 20th century.
 In fact, in 1976, The Little Professor was released by Texas Instruments and was sold for 20 $ a piece. One year later, already one million piece of this game 
-had been sold.For more information about this educational tool, press on [Little Professor](https://en.wikipedia.org/wiki/Little_Professor) .
+had been sold. For more information about this educational tool, press on [Little Professor](https://en.wikipedia.org/wiki/Little_Professor) .
+
+## requirements.txt:
+This file contains `the pip install` you will need to run properly this project. 
 
 ## Code:
-For this project, I recreated an online version of the Little Professor using the Pygame library. This library is installable using the following command on the terminal page of your IDE: `pip install pygame` .
+For this project, I recreated an online version of the Little Professor using the Pygame library. 
 
 ### Assets:
 To create the graphical interface of the game multiple assets are used including images, a special font and some audio files. Three folders contain the assets used in this project: **Audio**, **Graphics** and **font**.
@@ -51,6 +54,41 @@ This file is actually the main file of the game. It contains all the logic behin
 
 `phrase_rect`: This function takes as arguments: a string to display on the the display surface, the (x,y) position of the top left point of the surface, the font to write the string with, as well as the color of the string (black:(64,64,64) by default). It then returns a text_surface and a text_rectangle. This function encapsulates the pygame methods, `pygame.font.render()` and `surface.get_rect()`.
 
-`events_loop`: This function handles the userinput (keyboard keys pressed and mouse buttons pressed). It helps as well to make the transition between the different states of the game.
+`events_loop`: This function handles the user_input (keyboard keys pressed and mouse buttons pressed). It helps as well to make the transition between the different states of the game. 
 
-  
+In fact this game have multiple states:
+
+1. An initial state displayed on the display surface when all flags (final_state, start_the_game, choose_level, start_playing) are set to false which is the case initially.
+   
+![image](https://github.com/Aladin-bit01/CS50p-Final-Project/assets/144846441/a8df0b79-44a6-4f1a-8e6d-71df23866f28)
+
+2. By pressing the space button of the keyboard, we transition to the next state by setting the **start_the_game** to True.
+
+![image](https://github.com/Aladin-bit01/CS50p-Final-Project/assets/144846441/575b8f98-3b50-4dd2-b385-6e4779f09cd9)
+
+3. After selecting one the levels and clicking on the space button again, we transition to the next state by setting the **choose_level** to True.
+
+![image](https://github.com/Aladin-bit01/CS50p-Final-Project/assets/144846441/27796434-106b-4025-9553-87b55b0cdc1d)
+   
+4. In this state, the player is supposed to choose the level he wants to play with. By clicking on the space button again, we transition to the next state by setting the **start_playing** to True. (In this image demonstartion Operation = addition, Level = 1)
+
+![image](https://github.com/Aladin-bit01/CS50p-Final-Project/assets/144846441/78e6ad31-c890-4685-8422-8068f5d1ace0)
+
+After writing an answer and clicking return, we pass by to the next math equation. When we click return too other things happen, a variable **num** (which the  starting value is 0) is incremented by one and an other variable **score** (which the starting value is 0) is as well incremented by one if the answer given by the player is True.
+
+5. Finally when **num = 10** (which will happen after 10 iterations), we move to the last state by setting **final_state** to True. In this state, the score of the player is shown and we can move again to the initial state by clicking the space button on the keyboard.
+
+![image](https://github.com/Aladin-bit01/CS50p-Final-Project/assets/144846441/1b96a08c-2240-4015-ad93-3d679bd726d0)
+
+Finally the `main()` function is the one responsible of many tasks:
+1. Initializing the game
+2. Creating the display screen
+3. Updating the display surface continuosly
+4. Loading the assets (images, sentences, audio)
+5. Creating instances of the classes **Operations**, **Levels**, and **Display_Operation** (buttons)
+6. Main Game Loop: displaying on the screen the specific elements depending on the state of the game
+
+### test_project.py:
+This file contains multiple **pytest** unit tests to make sure each of the function is working properly.
+
+
