@@ -1,118 +1,193 @@
 import pygame
 from sys import exit
-import operations
 import re
+import operations
+from classes import Display_Operation, Levels, Operations
 
-#Constants
-SKYBLUE= (152, 195, 195)
-BEIGE= (210, 190, 150)
-YELLOW= (255,255,204)
-KEYBOARD_NUMBERS= [pygame.K_0, pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8, pygame.K_9]
-#Globals
+# Constants
+RED = (255,0,0)
+SKYBLUE = (152, 195, 195)
+BEIGE = (210, 190, 150)
+YELLOW = (255, 255, 204)
+
+# Globals
+final_state = False
 start_the_game = False
 choose_level = False
 start_playing = False
-#active_text_box= True
-ready = False
 user_answer = ''
+num = 0
+score = 0
+game_algo = []
 
 
+def main():
+    global num,score,user_answer,start_the_game,choose_level,start_the_game,final_state
+    pygame.init()
+    screen = pygame.display.set_mode((600, 400))
+    pygame.display.set_caption('Little Professor')
+    clock = pygame.time.Clock()
 
+    # Images
+    little_professor_surf = image_surface('Graphics/start_screen_little_professo.png')
+    little_professor_surf = pygame.transform.smoothscale_by(little_professor_surf, 0.4)
+    little_professor_rect = image_rect(little_professor_surf, 300, 200)
 
-class Operations:
-    def __init__(self, x, y, operation,name):
-        font= pygame.font.Font('font/Pixeltype.ttf', 60)
-        self.surface  = font.render(operation, False, (64, 64, 64))
-        self.rect = self.surface.get_rect(center=(x,y))
-        self.name= name
+    # Font
+    text_font = pygame.font.Font('Font/Pixeltype.ttf', 50)
+    # Game title
+    title_surf, title_rect = phrase_rect('Little Professor', 300, 60,text_font)
+    # start message
+    start_message_surf, start_message_rect = phrase_rect('Press space to start', 300, 350,text_font)
 
-    def draw(self, color= BEIGE):
-        pygame.draw.circle(screen,color,self.rect.center,50)
-        screen.blit(self.surface,self.rect)
-class Levels:
-    def __init__(self, x, y, niveau, name):
-        font = pygame.font.Font('font/Pixeltype.ttf', 60)
-        self.surface = font.render(name, False, (64, 64, 64))
-        self.rect = self.surface.get_rect(center=(x, y))
-        self.niveau = niveau
-        self.name= name
-    def draw(self, color=BEIGE):
-        pygame.draw.circle(screen, color, self.rect.center, 50)
-        screen.blit(self.surface, self.rect)
+    # Operations
+    sentence_surf, sentence_rect = phrase_rect('Choose a Mathematical Operation: ', 300, 50,text_font)
 
-class Display_Operation:
-    def __init__(self,operation= None):
-        font = pygame.font.Font('font/Pixeltype.ttf', 40)
-        self.operation_surf = font.render(f'{operation}', False ,(64,64,64))
-        self.rect= self.operation_surf.get_rect(topleft= (50,150))
-        self.rect.h += 5
+    addition = Operations(80, 200, '+', 'Addition')
+    substracction = Operations(230, 200, '-', 'Substraction')
+    multiplication = Operations(380, 200, 'x', 'Multiplication')
+    division = Operations(530, 200, '/', 'Division')
+    operationes = [addition, substracction, multiplication, division]
 
-    def draw(self):
-        self.rect= pygame.draw.rect(screen,BEIGE, self.rect)
-        self.rect = pygame.draw.rect(screen, BEIGE, self.rect, 10)
-        screen.blit(self.operation_surf,self.rect)
+    command_surf, command_rect = phrase_rect('Select the operation and press space ', 300, 300,text_font)
 
+    # Levels:
+    level_surf, level_rect = phrase_rect('Select a level: ', 300, 50,text_font)
+    level_1 = Levels(150, 200, 1, '1')
+    level_2 = Levels(300, 200, 2, '2')
+    level_3 = Levels(450, 200, 3, '3')
+    levelos = [level_1, level_2, level_3]
 
+    # Game In Playing
+    play_surface = text_font.render('Let\'s Play !', False, (64, 64, 64))
+    play_surface_rect = play_surface.get_rect(topleft=(50, 50))
+    user_rect = Display_Operation().rect
+    user_rect.x = 180
+    user_rect.y = 200
+    user_rect.w = Display_Operation().rect.w + 5
+    answer_prompt_surf = text_font.render('Answer: ', False, (64, 64, 64))
+    answer_prompt_rect = answer_prompt_surf.get_rect(topleft=(50, 200))
 
+    click_surf, click_rect = phrase_rect('Press Enter to continue ', 230, 300,text_font)
 
-def correct_answer(math_equation):
-    math_equation= math_equation.replace('=', '')
-    num1, num2= re.split(r'[+\-x/]', math_equation)
-    if '+' in math_equation:
-        return int(num1) + int(num2) == int (user_answer)
-    elif '-' in math_equation:
-        return int(num1) - int(num2) == int(user_answer)
-    elif 'x' in math_equation:
-        return int(num1) * int(num2) == int(user_answer)
-    else:
-        return int(num1) / int(num2) == int(user_answer)
+    # Final State
 
-def events_loop():
-    global start_the_game, choose_level,start_playing,user_answer, active_text_box, ready
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+    restart_surf, restart_rect = phrase_rect('Press Space to play again', 300, 200,text_font)
+    mathgame_surf = image_surface('Graphics/mathgame.webp')
+    mathgame_surf = pygame.transform.smoothscale_by(mathgame_surf, 0.05)
+    mathgame_rect = image_rect(mathgame_surf, 300, 300)
 
+    # Audio
+    right_answer_mp3 = pygame.mixer.Sound('Audio/item1.ogg')
+    wrong_answer_mp3 = pygame.mixer.Sound('Audio/negative_beeps-6008.mp3')
+
+    while True:
+        # for loop
+        events_loop(operationes, levelos)
+        # Game screen
+        # Operations Screen
+        if num == 10:
+            start_the_game = False
+            final_state = True
         if start_the_game:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                operationes = [addition, substracction, multiplication, division]
-                for op in operationes:
-                    if op.rect.collidepoint(pygame.mouse.get_pos()):
-                        choose_level= True
-                        game_algo.append(op.name)
-                if choose_level:
-                    levelos= [level_1, level_2,level_3]
-                    for level in levelos:
-                        if level.rect.collidepoint(pygame.mouse.get_pos()):
-                            start_playing= True
-                            game_algo.append(level.niveau)
+            screen.fill(SKYBLUE)
+            screen.blit(sentence_surf, sentence_rect)
+            addition.draw(screen)
+            substracction.draw(screen)
+            multiplication.draw(screen)
+            division.draw(screen)
+            ops = [addition, substracction, multiplication, division]
+            for op in ops:
+                if op.rect.collidepoint(pygame.mouse.get_pos()):
+                    op.draw(screen, RED)
 
+            screen.blit(command_surf, command_rect)
+
+            # Levels screen
+            if choose_level:
+                pygame.time.wait(300)
+                screen.fill(SKYBLUE)
+                screen.blit(level_surf, level_rect)
+                level_1.draw(screen)
+                level_2.draw(screen)
+                level_3.draw(screen)
+                levels = [level_1, level_2, level_3]
+                for level in levels:
+                    if level.rect.collidepoint(pygame.mouse.get_pos()):
+                        level.draw(screen, RED)
+                screen.blit(command_surf, command_rect)
+
+            # Real Game Screen
             if start_playing:
-                #INPUT BOX COLOR
-                #if event.type == pygame.MOUSEBUTTONDOWN and user_rect.collidepoint(event.pos):
-                #    active_text_box= True
-                #Handling the Input
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        ready = True
-                if ready:
-                    if user_rect.collidepoint(pygame.mouse.get_pos()):
-                        if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_SPACE:
-                                user_answer += ' '
-                            elif event.key == pygame.K_BACKSPACE and user_answer != '':
-                                user_answer= user_answer.replace(user_answer[-1], '')
-                            elif event.key == pygame.K_BACKSPACE and user_answer == '':
-                                user_answer = ''
-                            else:
-                                if event.key in KEYBOARD_NUMBERS:
-                                    user_answer += event.unicode
 
+                screen.fill(SKYBLUE)
+                screen.blit(play_surface, play_surface_rect)
+                screen.blit(answer_prompt_surf, answer_prompt_rect)
+                screen.blit(click_surf, click_rect)
+
+                user_rect = pygame.draw.rect(screen, BEIGE, user_rect)
+                user_text_surf = text_font.render(user_answer, True, (64, 64, 64))
+                user_rect.w = max(Display_Operation().rect.w, user_text_surf.get_width() + 10)
+                screen.blit(user_text_surf, user_rect)
+
+                equation = display_operation(game_algo)
+                question_surf = Display_Operation(equation).operation_surf
+                question_rect = Display_Operation(equation).rect
+                screen.blit(question_surf, question_rect)
+
+                while True:
+                    event = pygame.event.poll()
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_BACKSPACE:
+                            user_answer = user_answer.replace(user_answer[-1], ' ')
+
+                        else:
+                            user_answer += event.unicode
+                        user_answer = (' ' + user_answer).rstrip()
+                        user_rect = pygame.draw.rect(screen, BEIGE, user_rect)
+                        user_text_surf = text_font.render(user_answer, True, (64, 64, 64))
+                        user_rect.w = max(Display_Operation().rect.w, user_text_surf.get_width() + 10)
+                        screen.blit(user_text_surf, user_rect)
+
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            if user_answer.strip().replace('-', '').isdigit():
+                                x = user_answer
+                                if correct_answer(equation, user_answer.strip()):
+                                    score += 1
+                                    right_answer_mp3.play(0)
+                                else:
+                                    wrong_answer_mp3.play(0)
+
+                                user_answer = ''
+                                num += 1
+                                break
+
+                    pygame.display.update()
+        # Ending screen
+        elif final_state:
+
+            screen.fill(YELLOW)
+            score_surf, score_rect = phrase_rect(f'Your score: {score} out of 10', 300, 100,text_font)
+            screen.blit(score_surf, score_rect)
+            screen.blit(restart_surf, restart_rect)
+            screen.blit(mathgame_surf, mathgame_rect)
+        # Starting screen
         else:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    start_the_game= True
+            score = 0
+            screen.fill(YELLOW)
+            screen.blit(little_professor_surf, little_professor_rect)
+            screen.blit(title_surf, title_rect)
+            screen.blit(start_message_surf, start_message_rect)
+
+        clock.tick(60)
+        pygame.display.flip()
+
+
 def display_operation(details_list):
     if details_list[0] == 'Addition':
         return operations.addition(details_list[1])
@@ -124,156 +199,78 @@ def display_operation(details_list):
         return operations.division(details_list[1])
 
 
+def correct_answer(math_equation, answer):
+    math_equation = math_equation.replace('=', '')
+    num1, num2 = re.split(r'[+\-x/]', math_equation)
+    if '+' in math_equation:
+        return int(num1) + int(num2) == int(answer)
+    elif '-' in math_equation:
+        return int(num1) - int(num2) == int(answer)
+    elif 'x' in math_equation:
+        return int(num1) * int(num2) == int(answer)
+    else:
+        return int(num1) / int(num2) == int(answer)
+
 
 def image_surface(image):
     return pygame.image.load(image).convert_alpha()
-def image_rect(image_surf,x,y):
-    return image_surf.get_rect(center= (x,y))
-
-def phrase_rect(sentence,x,y, color= (64,64,64)):
-    global text_font
-    surf= text_font.render(sentence, False, color)
-    rect= surf.get_rect(center= (x,y))
-    return (surf,rect)
 
 
+def image_rect(image_surf, x, y):
+    return image_surf.get_rect(center=(x, y))
 
-pygame.init()
-screen = pygame.display.set_mode((600,400))
-pygame.display.set_caption('Little Professor')
-clock= pygame.time.Clock()
+def phrase_rect(sentence, x, y,text_font,color=(64, 64, 64)):
+    surf = text_font.render(sentence, False, color)
+    rect = surf.get_rect(center=(x, y))
+    return (surf, rect)
+
+def events_loop(operations_list,levels_list):
+    global start_the_game, choose_level, start_playing, user_answer, final_state, num
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+
+        if start_the_game:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+
+                for op in operations_list:
+                    if op.rect.collidepoint(pygame.mouse.get_pos()):
+                        choose_level = True
+                        game_algo.append(op.name)
+            if choose_level:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+
+                    for level in levels_list:
+                        if level.rect.collidepoint(pygame.mouse.get_pos()):
+                            start_playing = True
+                            game_algo.append(level.niveau)
+
+            if start_playing:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE:
+                        user_answer = user_answer[:-1]
+
+                    else:
+                        user_answer += event.unicode
+
+        elif final_state:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    num = 0
+                    final_state = False
+                    start_the_game = False
+                    choose_level = False
+                    start_playing = False
 
 
-
-
-#Images
-little_professor_surf= image_surface('Graphics/start_screen_little_professo.png')
-little_professor_surf= pygame.transform.smoothscale_by(little_professor_surf,0.4)
-little_professor_rect= image_rect(little_professor_surf,300,200)
-
-#Font
-text_font= pygame.font.Font('font/Pixeltype.ttf', 50)
-#Game title
-title_surf, title_rect= phrase_rect('Little Professor',300,60)
-#start message
-start_message_surf, start_message_rect = phrase_rect('Press space to start', 300, 350)
-
-#Operations
-sentence_surf, sentence_rect = phrase_rect('Choose a Mathematical Operation: ', 300, 50)
-
-addition= Operations(80,200, '+', 'Addition')
-substracction= Operations(230,200, '-', 'Substraction')
-multiplication= Operations(380,200, 'x', 'Multiplication')
-division= Operations(530,200, '/', 'Division')
-
-command_surf, command_rect = phrase_rect('Put your mouse on the operation', 300,300)
-command1_surf,command1_rect = phrase_rect('and press space ', 300,330)
-
-#Levels:
-level_surf, level_rect= phrase_rect('Select a level: ', 300,50)
-level_1= Levels(150,200, 1, '1')
-level_2= Levels(300,200, 2, '2')
-level_3= Levels(450,200, 3, '3')
-
-#Operation to use in game
-game_algo= []
-
-
-
-#Game In Playing
-play_surface= text_font.render('Let\'s Play !', False, (64,64,64))
-play_surface_rect= play_surface.get_rect(topleft= (50,50))
-user_rect= Display_Operation().rect
-user_rect.x = 180
-user_rect.y = 200
-user_rect.h= Display_Operation().rect.h + 5
-answer_prompt_surf= text_font.render('Answer: ', False, (64,64,64))
-answer_prompt_rect= answer_prompt_surf.get_rect(topleft= (50,200))
-
-click_surf, click_rect= phrase_rect('Click Enter twice to start ', 230, 150)
+        else:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    start_the_game = True
 
 
 
 
-
-
-num = 0
-while True:
-    #for loop
-    events_loop()
-#Game screen
-    #Operations Screen
-    if num == 10:
-        print('Done')
-        pygame.quit()
-        exit()
-    if start_the_game:
-        screen.fill(SKYBLUE)
-        screen.blit(sentence_surf,sentence_rect)
-        addition.draw()
-        substracction.draw()
-        multiplication.draw()
-        division.draw()
-        screen.blit(command_surf,command_rect)
-        screen.blit(command1_surf, command1_rect)
-        #Levels screen
-        if choose_level:
-            pygame.time.wait(300)
-            screen.fill(SKYBLUE)
-            screen.blit(level_surf,level_rect)
-            level_1.draw()
-            level_2.draw()
-            level_3.draw()
-            screen.blit(command_surf, command_rect)
-            screen.blit(command1_surf, command1_rect)
-        #Real Game Screen
-        if start_playing:
-            screen.fill(SKYBLUE)
-            screen.blit(play_surface, play_surface_rect)
-            screen.blit(answer_prompt_surf, answer_prompt_rect)
-
-            #pygame.draw.rect(screen, BEIGE, user_rect)
-            #if active_text_box:
-            user_rect= pygame.draw.rect(screen, '#B85067', user_rect)
-            user_text_surf = text_font.render(user_answer, True, (64, 64, 64))
-            user_rect.w = max(Display_Operation().rect.w, user_text_surf.get_width() + 10)
-            screen.blit(user_text_surf, (user_rect.x + 5, user_rect.y + 5))
-
-            if ready:
-                equation= display_operation(game_algo)
-                question_surf = Display_Operation(equation).operation_surf
-                question_rect = Display_Operation(equation).rect
-                screen.blit(question_surf, question_rect)
-
-                while True:
-                    event = pygame.event.wait()
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB and num == 0:
-                        num += 1
-                        break
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        exit()
-                    #if event.type == pygame.MOUSEBUTTONDOWN and user_rect.collidepoint(event.pos) and len(user_answer) > 1:
-                    #    active_text_box = True
-
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                        user_answer = ''
-                        num += 1
-                        break  # Exit the inner loop when the user presses enter
-
-            else:
-                screen.blit(click_surf, click_rect)
-
-
-    #Starting screen
-    else:
-        screen.fill(YELLOW)
-        screen.blit(little_professor_surf,little_professor_rect)
-        screen.blit(title_surf,title_rect)
-        screen.blit(start_message_surf,start_message_rect)
-
-
-
-    clock.tick(60)
-    pygame.display.flip()
-
+if __name__ == '__main__':
+    main()
