@@ -13,11 +13,12 @@ had been sold. For more information about this educational tool, press on [Littl
 ## requirements.txt:
 This file contains the `pip install` libraries you will need to run properly this project. 
 
+## Assets:
+To create the graphical interface of the game multiple assets are used including images, a special font and some audio files. Three folders contain the assets used in this project: **Audio**, **Graphics** and **font**.
+
 ## Code:
 For this project, I recreated an online version of the Little Professor using the Pygame library. 
 
-### Assets:
-To create the graphical interface of the game multiple assets are used including images, a special font and some audio files. Three folders contain the assets used in this project: **Audio**, **Graphics** and **font**.
 ### operations.py:
 Ultimately, this file has for goal to return a mathematical equation (Addition, Substraction, Multiplication, Division) that the player of the game will have to solve.
 Two functions `add_sub_operands` and `mult_div_operands` have for goal to return the two operands that will be displayed in the math equation. Those functions take one argument (The Level chosen by the player from 1 to 3). 
@@ -89,6 +90,5 @@ Finally the `main()` function is the one responsible of many tasks:
 6. Main Game Loop: displaying on the screen the specific elements depending on the state of the game
 
 ### test_project.py:
-This file contains multiple **pytest** unit tests to make sure each of the function is working properly.
-
+This file contains multiple **pytest** unit tests to make sure each of the functions is working properly.
 
