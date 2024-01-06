@@ -11,7 +11,7 @@ In fact, in 1976, The Little Professor was released by Texas Instruments and was
 had been sold. For more information about this educational tool, press on [Little Professor](https://en.wikipedia.org/wiki/Little_Professor) .
 
 ## requirements.txt:
-This file contains `the pip install` you will need to run properly this project. 
+This file contains the `pip install` libraries you will need to run properly this project. 
 
 ## Code:
 For this project, I recreated an online version of the Little Professor using the Pygame library. 
