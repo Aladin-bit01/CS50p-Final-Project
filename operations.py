@@ -8,9 +8,6 @@ with open('Division_Operations/Division_Level2', 'r') as fifo:
 
 with open('Division_Operations/Division_Level3', 'r') as mifo:
     LIST_DIVISION_LEVEL3= [l.strip()[:9]for l in mifo ]
-def main():
-    final= division(2)
-    print(f'Score:{final}')
 
 def add_sub_operands(level):
     min= 10 ** (level-1)
@@ -66,5 +63,4 @@ def division(level):
 
 
 
-if __name__ == '__main__':
-    main()
+

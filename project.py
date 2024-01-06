@@ -213,7 +213,7 @@ def correct_answer(math_equation, answer):
 
 
 def image_surface(image):
-    return pygame.image.load(image).convert_alpha()
+    return pygame.image.load(image)
 
 
 def image_rect(image_surf, x, y):
