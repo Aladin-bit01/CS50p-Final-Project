@@ -1,4 +1,4 @@
-# CS50p-Final-Project | Little Professor Game
+# CS50P Final Project | Little Professor Game
 
 #### Video Demo:  <URL HERE>
 
