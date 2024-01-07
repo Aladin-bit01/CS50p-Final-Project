@@ -1,6 +1,6 @@
 # CS50P Final Project | Little Professor Game
 
-#### Video Demo:  <[URL HERE](https://youtu.be/Sdpof7ePjQY)>
+#### Video Demo:  <[Little Professor Game](https://youtu.be/Sdpof7ePjQY)>
 
 ![image](https://github.com/Aladin-bit01/CS50p-Final-Project/assets/144846441/5c7d1517-1647-48e6-b94b-ade36ca04e59)
 
