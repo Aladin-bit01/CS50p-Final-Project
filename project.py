@@ -258,6 +258,7 @@ def events_loop(operations_list,levels_list):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     num = 0
+                    game_algo.clear()
                     final_state = False
                     start_the_game = False
                     choose_level = False
